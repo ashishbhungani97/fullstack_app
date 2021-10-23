@@ -29,18 +29,51 @@ async(req,res) =>{
         
         let salt = await bcrypt.genSaltSync(10);
         let secPass =  await bcrypt.hash(req.body.password,salt);
-
-        let user = Users.create({
+        
+        let user = await Users.create({
             ...req.body,
             password : secPass,
         });
-
-        return res.json({'userid' : user.id});
-
-
+        
+        return res.status(200).json({'error' : 'OK'});
     }
     catch(err){
         return res.status(500).json({error : 'Internal Server Error !'});
+    }
+});
+
+
+router.get('/getusers',async(req,res)=>{
+   
+    try{
+        let userlist = await Users.find({});
+        return res.status(200).json({'error' : 'OK' , 'users' : JSON.stringify(userlist)});
+    }
+    catch(err){
+        return res.status(500).json({'error' : 'Internal Server Error !'});
+    }
+});
+
+
+router.post('/getuser',[
+    body('id','Invaid Information !').not().isEmpty()
+],async (req,res)=>{
+    
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({ error: errors.array() });
+    }
+    try{
+        let user = await Users.findOne({'_id' : req.body.id }).exec();
+        if(user){
+            res.status(200).json({'error':'OK', 'message' : 'Successfully Found User' ,'user' : JSON.stringify(user)})
+        }
+        else{
+            res.status(400).json({'error' : 'User Not Found !'});
+        }
+    }
+    catch(err){
+        res.status(500).json({'error' : err.message});
     }
 });
 

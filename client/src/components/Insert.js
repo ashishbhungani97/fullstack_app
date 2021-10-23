@@ -35,14 +35,16 @@ export default function Insert(props) {
         };
         
         axios.post('http://localhost:3001/api/user/createuser',userdata,headers).then(function (response) {
-            console.log(response);
+            if(response.data.error === 'OK'){
+                history.push('/');
+            }
           })
           .catch(function (error) {
-            console.log(error);
+            setAlert(error.message);
           });
         
         
-        // history.push('/');
+        
     }
 
     return (

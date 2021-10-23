@@ -1,26 +1,48 @@
+import axios from 'axios';
 import React, { useState, useEffect } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import Alerts from './Alerts';
 
 
 export default function Edit() {
-
-    const history = useHistory();
-    let { slug } = useParams();
-    let all = JSON.parse(localStorage.getItem('userinfo'))
-    let olddata1 = all.filter(check => check.id === slug)
-
-    if (olddata1.length <= 0) {
-        history.push('/');
-
-    }
-
-
-
-
-    const [userdata, setUserdata] = useState(olddata1[0]);
+    const [userdata, setUserdata] = useState({
+        name : "",
+        email : "",
+        password : "",
+        address : "",
+        address2 : "",
+        city : ""
+    });
 
     const [alert, setAlert] = useState(null);
+    const history = useHistory();
+    let { slug } = useParams();
+
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
+   
+    useEffect(() => {
+        axios.post('http://localhost:3001/api/user/getuser',{'id': slug },headers).catch((err)=>{
+            console.log(err.message)
+        }).then((result)=>{
+            if(result.data.error === 'OK'){
+                setUserdata(JSON.parse(result.data.user))
+            }
+            else{
+                history.push('/');
+            }
+        });
+        
+    }, [])
+   
+    
+    
+
+
+
+  
 
     const changeHandle = (e) => {
         setUserdata(prevuserdata => [{ ...prevuserdata, [e.target.name]: e.target.value }]);
@@ -28,27 +50,9 @@ export default function Edit() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // if(userdata.acept === 'off' || userdata.email === '' ||  userdata.password === '' || userdata.address === '' || userdata.address2 === '' || userdata.city === '' ){
-        //     setAlert({ type : "danger" , msg : "All Filed Required !"})
-        //     return false;
-        // }
-
-        setAlert(null);
-        
-        let filtercurrent = all.map((check, index) => {
-            if (check.id === slug) {
-                return all[index] = check[index]; 
-            }
-        })
-
-
-        console.log(filtercurrent);
-
-        // let userinfo = JSON.stringify([...current]);
-        // localStorage.setItem('userinfo', userinfo);
-        // history.push('/');
+       
     }
-
+    
 
     return (
 
@@ -61,7 +65,7 @@ export default function Edit() {
             </svg>  Home</Link></h5>
             <hr />
             {
-                olddata1.length > 0 &&
+                userdata &&
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-row">

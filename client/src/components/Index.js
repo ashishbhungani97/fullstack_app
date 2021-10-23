@@ -1,16 +1,35 @@
-import React  from 'react'
-import { Link , useHistory } from 'react-router-dom'
+import React, { useEffect, useState }  from 'react'
+import { Link, useHistory } from 'react-router-dom'
+import axios from 'axios';
 
 
 export default function Index(props) {
-
-    let userinfo = JSON.parse(localStorage.getItem('userinfo'));
     let history = useHistory();
+    const [userinfo, setuserinfo] = useState([]);
 
-    const handleupdate = (id) =>{
-       history.push(`/edit/${id}`);
-    }
+    useEffect(() => {
+        axios.get('http://localhost:3001/api/user/getusers').catch((error)=>{
+
+        }).then((result)=>{
+            if (result.data.error === 'OK') {
+                setuserinfo(JSON.parse(result.data.users))
+            }
+            else{
+                setuserinfo(false);
+            }
+        });
+        
+        
+    }, [])
+   
+
     
+    
+
+    const handleupdate = (id) => {
+        history.push(`/edit/${id}`);
+    }
+
     return (
         <div className="container">
             <h4 className="text-center mt-5 mb-5">All Data</h4>
@@ -31,17 +50,17 @@ export default function Index(props) {
                 <tbody>
                     {
 
-                       userinfo &&  userinfo.map((value , index) => {
-                            
+                        userinfo && userinfo.map((value, index) => {
+
                             return (
-                            <tr key={value.id}>
-                                <th>{index + 1}</th>
-                                <td>{value.name}</td>
-                                <td>{value.email}</td>
-                                <td>{value.address + value.address2}</td>
-                                <td>{value.city}</td>
-                                <td><button onClick={() => handleupdate(value.id)}>Edit</button></td>
-                            </tr>
+                                <tr key={value._id}>
+                                    <td>{index + 1}</td>
+                                    <td>{value.name}</td>
+                                    <td>{value.email}</td>
+                                    <td>{value.address + value.address2}</td>
+                                    <td>{value.city}</td>
+                                    <td><button onClick={() => handleupdate(value._id)}>Edit</button></td>
+                                </tr>
                             )
                         })
                     }

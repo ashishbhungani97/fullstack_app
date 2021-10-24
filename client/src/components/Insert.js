@@ -40,7 +40,8 @@ export default function Insert(props) {
             }
           })
           .catch(function (error) {
-            setAlert(error.message);
+            setAlert({'msg' : error.message,
+                    'type' : 'danger'});
           });
         
         

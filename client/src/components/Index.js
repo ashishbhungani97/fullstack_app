@@ -6,6 +6,7 @@ import axios from 'axios';
 export default function Index(props) {
     let history = useHistory();
     const [userinfo, setuserinfo] = useState([]);
+    const [lastupdate,setlastupdate] = useState(new Date());
 
     useEffect(() => {
         axios.get('http://localhost:3001/api/user/getusers').catch((error)=>{
@@ -20,10 +21,21 @@ export default function Index(props) {
         });
         
         
-    }, [])
+    }, [lastupdate])
    
 
-    
+    const handledelete = (email) =>{
+        axios.post('http://localhost:3001/api/user/deleteuser',{email}).catch((error)=>{
+
+        }).then((result)=>{
+            if (result.data.error === 'OK') {
+                setlastupdate(new Date());
+            }
+            else{
+                setuserinfo(false);
+            }
+        });
+    }
     
 
     const handleupdate = (id) => {
@@ -59,7 +71,10 @@ export default function Index(props) {
                                     <td>{value.email}</td>
                                     <td>{value.address + value.address2}</td>
                                     <td>{value.city}</td>
-                                    <td><button onClick={() => handleupdate(value._id)}>Edit</button></td>
+                                    <td>
+                                        <button onClick={() => handleupdate(value._id)}>Edit</button>
+                                        <button onClick={() => handledelete(value.email)}>Delete</button>
+                                    </td>
                                 </tr>
                             )
                         })

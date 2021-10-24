@@ -6,12 +6,12 @@ import Alerts from './Alerts';
 
 export default function Edit() {
     const [userdata, setUserdata] = useState({
-        name : "",
-        email : "",
-        password : "",
-        address : "",
-        address2 : "",
-        city : ""
+        name: "",
+        email: "",
+        password: "",
+        address: "",
+        address2: "",
+        city: ""
     });
 
     const [alert, setAlert] = useState(null);
@@ -22,37 +22,63 @@ export default function Edit() {
         'Content-Type': 'application/json'
     };
 
-   
+
     useEffect(() => {
-        axios.post('http://localhost:3001/api/user/getuser',{'id': slug },headers).catch((err)=>{
+        axios.post('http://localhost:3001/api/user/getuser', { 'id': slug }, headers).catch((err) => {
             console.log(err.message)
-        }).then((result)=>{
-            if(result.data.error === 'OK'){
-                setUserdata(JSON.parse(result.data.user))
+        }).then((result) => {
+            if (result.data.error === 'OK') {
+                let a = [JSON.parse(result.data.user)]
+                setUserdata(...a)
             }
-            else{
+            else {
                 history.push('/');
             }
         });
-        
+
     }, [])
-   
-    
-    
 
 
 
-  
+
+
+
+
 
     const changeHandle = (e) => {
-        setUserdata(prevuserdata => [{ ...prevuserdata, [e.target.name]: e.target.value }]);
+        setUserdata({ ...userdata, [e.target.name]: e.target.value });
+
     }
+
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
-       
+        setAlert(null);
+
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        axios.post('http://localhost:3001/api/user/updateuser', userdata, headers).then(function (response) {
+            console.log(response.data.error)    
+        if (response.data.error === 'OK') {
+                history.push('/');
+            }
+            else {
+                setAlert({'msg' : response.data.error,
+                        'type' : 'danger'
+                        });
+            }
+        })
+            .catch(function (error) {
+                setAlert(error.message);
+            });
+
     }
-    
+
+
+
 
     return (
 
@@ -76,7 +102,7 @@ export default function Edit() {
                         </div>
                         <div className="form-group col-md-6">
                             <label htmlFor="inputPassword4">Password</label>
-                            <input type="password" name="password" className="form-control" id="inputPassword4" placeholder="Password" onChange={changeHandle} value={userdata.password} />
+                            <input type="password" name="password" className="form-control" id="inputPassword4" placeholder="Password" onChange={changeHandle} />
                         </div>
                     </div>
                     <div className="form-group">

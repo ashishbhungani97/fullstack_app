@@ -1,12 +1,14 @@
 import React, { useEffect, useState }  from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import axios from 'axios';
+import Alerts from './Alerts';
 
 
 export default function Index(props) {
     let history = useHistory();
     const [userinfo, setuserinfo] = useState([]);
     const [lastupdate,setlastupdate] = useState(new Date());
+    const [alert,setalert] = useState(null);
 
     useEffect(() => {
         axios.get('http://localhost:3001/api/user/getusers').catch((error)=>{
@@ -26,10 +28,16 @@ export default function Index(props) {
 
     const handledelete = (email) =>{
         axios.post('http://localhost:3001/api/user/deleteuser',{email}).catch((error)=>{
-
+            setalert({
+                'type' : 'danger',
+                'msg' : error.message
+            })
         }).then((result)=>{
             if (result.data.error === 'OK') {
                 setlastupdate(new Date());
+                setalert({'msg' : 'Successfully Delete user',
+                            'type' : 'success'
+                        })
             }
             else{
                 setuserinfo(false);
@@ -44,6 +52,7 @@ export default function Index(props) {
 
     return (
         <div className="container">
+            <Alerts alert={alert} />
             <h4 className="text-center mt-5 mb-5">All Data</h4>
             <h5 className="text-right mt-5 mb-5"><Link to="/insert">Insert Data</Link></h5>
             <hr />
